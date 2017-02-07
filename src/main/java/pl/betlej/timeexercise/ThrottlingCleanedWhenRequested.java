@@ -1,14 +1,11 @@
 package pl.betlej.timeexercise;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
-
-public class ThrottlingCleanedWhenRequested implements Throttling
+public class ThrottlingCleanedWhenRequested extends Throttling
 {
-    private final ConcurrentLinkedQueue<Long> tasksReceived;
 
     public ThrottlingCleanedWhenRequested()
     {
-        tasksReceived = new ConcurrentLinkedQueue<>();
+        super();
     }
 
     @Override
@@ -22,18 +19,13 @@ public class ThrottlingCleanedWhenRequested implements Throttling
                 return false;
             }
         }
-        tasksReceived.add(System.currentTimeMillis());
+        getTasksReceived().add(System.currentTimeMillis());
         return true;
     }
 
     private void tryCleaningTheQueue()
     {
-        tasksReceived.removeIf((peek) -> System.currentTimeMillis() - peek > TASK_ACTIVE_MILLISECONDS);
-    }
-
-    private boolean serverOverloaded()
-    {
-        return tasksReceived.size() >= THROTTLING_REQUESTS_PER_UNIT;
+        getTasksReceived().removeIf((peek) -> System.currentTimeMillis() - peek > TASK_ACTIVE_MILLISECONDS);
     }
 
     public static void main(String[] args)

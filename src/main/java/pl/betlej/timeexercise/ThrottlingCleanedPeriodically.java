@@ -2,19 +2,16 @@ package pl.betlej.timeexercise;
 
 import java.util.concurrent.*;
 
-public class ThrottlingCleanedPeriodically implements Throttling
+public class ThrottlingCleanedPeriodically extends Throttling
 {
 
-
     private static final int PERIOD_OF_EVICTION = 10;
-    private final ConcurrentLinkedQueue<Long> tasksReceived;
     private final ScheduledExecutorService scheduledExecutorService;
 
     public ThrottlingCleanedPeriodically()
     {
-        tasksReceived = new ConcurrentLinkedQueue<>();
         scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-        scheduledExecutorService.scheduleAtFixedRate(() -> tasksReceived.removeIf((peek) -> System.currentTimeMillis() - peek > TASK_ACTIVE_MILLISECONDS), 0, PERIOD_OF_EVICTION, TimeUnit.MILLISECONDS);
+        scheduledExecutorService.scheduleAtFixedRate(() -> getTasksReceived().removeIf((peek) -> System.currentTimeMillis() - peek > TASK_ACTIVE_MILLISECONDS), 0, PERIOD_OF_EVICTION, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -24,25 +21,20 @@ public class ThrottlingCleanedPeriodically implements Throttling
         {
             return false;
         }
-        tasksReceived.add(System.currentTimeMillis());
+        getTasksReceived().add(System.currentTimeMillis());
         return true;
     }
 
-    private boolean serverOverloaded()
+    public void shutdown()
     {
-        return tasksReceived.size() >= THROTTLING_REQUESTS_PER_UNIT;
-    }
-
-    private ScheduledExecutorService getScheduledExecutorService()
-    {
-        return scheduledExecutorService;
+        scheduledExecutorService.shutdown();
     }
 
     public static void main(String[] args)
     {
         ThrottlingCleanedPeriodically throttlingCleanedPeriodically = new ThrottlingCleanedPeriodically();
         Throttling.throttlingSampleUsage(throttlingCleanedPeriodically);
-        throttlingCleanedPeriodically.getScheduledExecutorService().shutdown();
+        throttlingCleanedPeriodically.shutdown();
     }
 
 
