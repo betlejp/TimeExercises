@@ -10,8 +10,17 @@ public class ThrottlingCleanedPeriodically extends Throttling
 
     public ThrottlingCleanedPeriodically()
     {
-        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-        scheduledExecutorService.scheduleAtFixedRate(() -> getTasksReceived().removeIf((peek) -> System.currentTimeMillis() - peek > TASK_ACTIVE_MILLISECONDS), 0, PERIOD_OF_EVICTION, TimeUnit.MILLISECONDS);
+        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(daemonThreadFactory());
+        scheduledExecutorService.scheduleAtFixedRate(this::cleanTheQueue, 0, PERIOD_OF_EVICTION, TimeUnit.MILLISECONDS);
+    }
+
+    private ThreadFactory daemonThreadFactory()
+    {
+        return (r)->{
+            Thread thread = Executors.defaultThreadFactory().newThread(r);
+            thread.setDaemon(true);
+            return thread;
+        };
     }
 
     @Override
@@ -25,16 +34,9 @@ public class ThrottlingCleanedPeriodically extends Throttling
         return true;
     }
 
-    public void shutdown()
-    {
-        scheduledExecutorService.shutdown();
-    }
-
     public static void main(String[] args)
     {
-        ThrottlingCleanedPeriodically throttlingCleanedPeriodically = new ThrottlingCleanedPeriodically();
-        Throttling.throttlingSampleUsage(throttlingCleanedPeriodically);
-        throttlingCleanedPeriodically.shutdown();
+        Throttling.throttlingSampleUsage(new ThrottlingCleanedPeriodically());
     }
 
 

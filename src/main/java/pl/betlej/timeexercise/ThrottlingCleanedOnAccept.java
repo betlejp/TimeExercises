@@ -1,9 +1,9 @@
 package pl.betlej.timeexercise;
 
-public class ThrottlingCleanedWhenRequested extends Throttling
+public class ThrottlingCleanedOnAccept extends Throttling
 {
 
-    public ThrottlingCleanedWhenRequested()
+    public ThrottlingCleanedOnAccept()
     {
         super();
     }
@@ -13,7 +13,7 @@ public class ThrottlingCleanedWhenRequested extends Throttling
     {
         if (serverOverloaded())
         {
-            tryCleaningTheQueue();
+            cleanTheQueue();
             if (serverOverloaded())
             {
                 return false;
@@ -23,13 +23,8 @@ public class ThrottlingCleanedWhenRequested extends Throttling
         return true;
     }
 
-    private void tryCleaningTheQueue()
-    {
-        getTasksReceived().removeIf((peek) -> System.currentTimeMillis() - peek > TASK_ACTIVE_MILLISECONDS);
-    }
-
     public static void main(String[] args)
     {
-        Throttling.throttlingSampleUsage(new ThrottlingCleanedWhenRequested());
+        Throttling.throttlingSampleUsage(new ThrottlingCleanedOnAccept());
     }
 }

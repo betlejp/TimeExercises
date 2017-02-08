@@ -1,7 +1,9 @@
 package pl.betlej.timeexercise;
 
+import java.time.Clock;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 public abstract class Throttling
@@ -9,14 +11,15 @@ public abstract class Throttling
     private final ConcurrentLinkedQueue<Long> tasksReceived;
     int TASK_ACTIVE_MILLISECONDS = 1000;
     int THROTTLING_REQUESTS_PER_UNIT = 10;
+    private final Clock clock;
 
     public Throttling()
     {
         tasksReceived = new ConcurrentLinkedQueue<>();
+        clock = Clock.systemUTC();
     }
 
     public abstract boolean accept();
-
 
     protected ConcurrentLinkedQueue<Long> getTasksReceived()
     {
@@ -26,6 +29,16 @@ public abstract class Throttling
     protected boolean serverOverloaded()
     {
         return getTasksReceived().size() >= THROTTLING_REQUESTS_PER_UNIT;
+    }
+
+    protected void cleanTheQueue()
+    {
+        getTasksReceived().removeIf(taskInactive());
+    }
+
+    private Predicate<Long> taskInactive()
+    {
+        return (taskAccepted) -> clock.millis() - taskAccepted > TASK_ACTIVE_MILLISECONDS;
     }
 
     protected static void throttlingSampleUsage(final Throttling throttlingCleanedPeriodically)
