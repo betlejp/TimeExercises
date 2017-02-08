@@ -21,7 +21,7 @@ public abstract class Throttling
 
     public abstract boolean accept();
 
-    protected ConcurrentLinkedQueue<Long> getTasksReceived()
+    private ConcurrentLinkedQueue<Long> getTasksReceived()
     {
         return tasksReceived;
     }

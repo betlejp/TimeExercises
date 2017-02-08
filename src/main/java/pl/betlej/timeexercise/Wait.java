@@ -9,6 +9,7 @@ public class Wait<T>
 {
     private static final int DEFAULT_INTERVAL_COUNT = 1;
     private static final TimeUnit DEFAULT_INTERVAL_UNIT = TimeUnit.MILLISECONDS;
+    public static final int NO_TIMEOUT = Integer.MIN_VALUE;
     private TimeUnit intervalUnit;
     private int intervalCount;
     private final T objectWaitedFor;
@@ -31,6 +32,7 @@ public class Wait<T>
         this.sleeper = new DefaultSleeper();
         this.intervalCount = DEFAULT_INTERVAL_COUNT;
         this.intervalUnit = DEFAULT_INTERVAL_UNIT;
+        this.maxNano = NO_TIMEOUT;
 
     }
 
@@ -64,7 +66,7 @@ public class Wait<T>
     private boolean notTimedOut()
     {
         int duration = clock.instant().getNano() - start.getNano();
-        return maxNano > duration;
+        return maxNano > duration || maxNano==NO_TIMEOUT;
     }
 
     public Wait atMost(TimeUnit unit, int count)
