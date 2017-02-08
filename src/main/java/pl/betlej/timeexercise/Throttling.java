@@ -1,6 +1,7 @@
 package pl.betlej.timeexercise;
 
 import java.time.Clock;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
@@ -8,7 +9,7 @@ import java.util.stream.IntStream;
 
 public abstract class Throttling
 {
-    private final ConcurrentLinkedQueue<Long> tasksReceived;
+    private final Queue<Long> tasksReceived;
     int TASK_ACTIVE_MILLISECONDS = 1000;
     int THROTTLING_REQUESTS_PER_UNIT = 10;
     private final Clock clock;
@@ -21,7 +22,7 @@ public abstract class Throttling
 
     public abstract boolean accept();
 
-    private ConcurrentLinkedQueue<Long> getTasksReceived()
+    private Queue<Long> getTasksReceived()
     {
         return tasksReceived;
     }
@@ -41,16 +42,16 @@ public abstract class Throttling
         return (taskAccepted) -> clock.millis() - taskAccepted > TASK_ACTIVE_MILLISECONDS;
     }
 
-    protected static void throttlingSampleUsage(final Throttling throttlingCleanedPeriodically)
+    protected static void throttlingSampleUsage(final Throttling throttling)
     {
         long start = System.currentTimeMillis();
         long numberOfRequestsAccepted = IntStream.range(0, 10_000)
                 .parallel()
                 .peek((x) -> slowDown())
-                .mapToObj(x -> throttlingCleanedPeriodically.accept())
+                .mapToObj(x -> throttling.accept())
                 .filter(x -> x).count();
         System.out.println("numberOfRequestsAccepted: " + numberOfRequestsAccepted);
-        System.out.println("time in seconds: " + (System.currentTimeMillis() - start) / 1000);
+        System.out.println("time in millis: " + (System.currentTimeMillis() - start) );
     }
 
     private static void slowDown()
