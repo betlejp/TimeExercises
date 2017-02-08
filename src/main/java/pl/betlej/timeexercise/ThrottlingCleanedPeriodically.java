@@ -6,17 +6,17 @@ public class ThrottlingCleanedPeriodically extends Throttling
 {
 
     private static final int PERIOD_OF_EVICTION = 10;
-    private final ScheduledExecutorService scheduledExecutorService;
 
     public ThrottlingCleanedPeriodically()
     {
-        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(daemonThreadFactory());
-        scheduledExecutorService.scheduleAtFixedRate(this::cleanTheQueue, 0, PERIOD_OF_EVICTION, TimeUnit.MILLISECONDS);
+        Executors.newSingleThreadScheduledExecutor(daemonThreadFactory())
+                .scheduleAtFixedRate(this::cleanTheQueue, 0, PERIOD_OF_EVICTION, TimeUnit.MILLISECONDS);
     }
 
     private ThreadFactory daemonThreadFactory()
     {
-        return (r)->{
+        return (r) ->
+        {
             Thread thread = Executors.defaultThreadFactory().newThread(r);
             thread.setDaemon(true);
             return thread;
@@ -30,7 +30,7 @@ public class ThrottlingCleanedPeriodically extends Throttling
         {
             return false;
         }
-        getTasksReceived().add(System.currentTimeMillis());
+        registerTask();
         return true;
     }
 

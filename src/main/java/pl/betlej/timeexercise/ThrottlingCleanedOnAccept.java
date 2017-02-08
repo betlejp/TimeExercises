@@ -19,7 +19,7 @@ public class ThrottlingCleanedOnAccept extends Throttling
                 return false;
             }
         }
-        getTasksReceived().add(System.currentTimeMillis());
+        registerTask();
         return true;
     }
 

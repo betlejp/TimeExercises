@@ -63,4 +63,9 @@ public abstract class Throttling
             throw new RuntimeException(e);
         }
     }
+
+    public void registerTask()
+    {
+        getTasksReceived().add(clock.millis());
+    }
 }
