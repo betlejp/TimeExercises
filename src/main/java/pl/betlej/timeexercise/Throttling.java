@@ -2,7 +2,6 @@ package pl.betlej.timeexercise;
 
 import java.time.Clock;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
@@ -10,13 +9,14 @@ import java.util.stream.IntStream;
 public abstract class Throttling
 {
     private final Queue<Long> tasksReceived;
-    int TASK_ACTIVE_MILLISECONDS = 1000;
-    int THROTTLING_REQUESTS_PER_UNIT = 10;
+    static int TASK_ACTIVE_MILLISECONDS = 1000;
+    static int THROTTLING_REQUESTS_PER_UNIT = 10;
     private final Clock clock;
 
-    public Throttling()
+
+    Throttling(Queue<Long> es)
     {
-        tasksReceived = new ConcurrentLinkedQueue<>();
+        tasksReceived = es;
         clock = Clock.systemUTC();
     }
 
@@ -51,7 +51,7 @@ public abstract class Throttling
                 .mapToObj(x -> throttling.accept())
                 .filter(x -> x).count();
         System.out.println("numberOfRequestsAccepted: " + numberOfRequestsAccepted);
-        System.out.println("time in millis: " + (System.currentTimeMillis() - start) );
+        System.out.println("time in millis: " + (System.currentTimeMillis() - start));
     }
 
     private static void slowDown()
@@ -65,8 +65,8 @@ public abstract class Throttling
         }
     }
 
-    public void registerTask()
+    protected boolean registerTask()
     {
-        getTasksReceived().add(clock.millis());
+        return getTasksReceived().offer(clock.millis());
     }
 }

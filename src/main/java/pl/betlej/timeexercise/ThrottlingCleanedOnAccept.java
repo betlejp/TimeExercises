@@ -1,11 +1,13 @@
 package pl.betlej.timeexercise;
 
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 public class ThrottlingCleanedOnAccept extends Throttling
 {
 
     public ThrottlingCleanedOnAccept()
     {
-        super();
+        super(new ConcurrentLinkedQueue<>());
     }
 
     @Override
@@ -19,8 +21,7 @@ public class ThrottlingCleanedOnAccept extends Throttling
                 return false;
             }
         }
-        registerTask();
-        return true;
+        return  registerTask();
     }
 
     public static void main(String[] args)
