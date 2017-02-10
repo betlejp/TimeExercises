@@ -1,5 +1,7 @@
 package pl.betlej.timeexercise;
 
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -10,13 +12,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.LongStream;
 
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
 import static java.time.Instant.ofEpochMilli;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.*;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 public class WaitTest
 {
@@ -60,10 +61,11 @@ public class WaitTest
     public void shouldNotExitBeforeTimeoutForConditionNotMet()
     {
         //when
-        testedWait.atMost(TimeUnit.MILLISECONDS, 4).atIntervals(TimeUnit.MILLISECONDS, 1).waitUntil(alwaysFalse);
+        boolean waitResult = testedWait.atMost(TimeUnit.MILLISECONDS, 4).atIntervals(TimeUnit.MILLISECONDS, 1).waitUntil(alwaysFalse);
 
         //then
         verify(alwaysFalse, times(4)).test(objectWaitedFor);
+        assertFalse(waitResult);
     }
 
 
@@ -72,10 +74,11 @@ public class WaitTest
     {
 
         //when
-        testedWait.atMost(TimeUnit.MILLISECONDS, 10).atIntervals(TimeUnit.MILLISECONDS, 1).waitUntil(trueOnSecondCall);
+        boolean waitResult = testedWait.atMost(TimeUnit.MILLISECONDS, 10).atIntervals(TimeUnit.MILLISECONDS, 1).waitUntil(trueOnSecondCall);
 
         //then
         verify(trueOnSecondCall, times(2)).test(objectWaitedFor);
+        assertTrue(waitResult);
     }
 
 }

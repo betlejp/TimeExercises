@@ -49,18 +49,20 @@ public class Wait<T>
         return this;
     }
 
-    public void waitUntil(Predicate<T> condition)
+    public boolean waitUntil(Predicate<T> condition)
     {
         this.start = this.clock.instant();
-        while (conditionNotMet(condition) && notTimedOut())
+        boolean conditionMet;
+        while (!(conditionMet = objectMeetsCondition(condition)) && notTimedOut())
         {
             this.sleeper.doSleep(intervalUnit.toMillis(intervalCount));
         }
+        return conditionMet;
     }
 
-    private boolean conditionNotMet(Predicate<T> condition)
+    public boolean objectMeetsCondition(Predicate<T> condition)
     {
-        return !condition.test(objectWaitedFor);
+        return condition.test(objectWaitedFor);
     }
 
     private boolean notTimedOut()
