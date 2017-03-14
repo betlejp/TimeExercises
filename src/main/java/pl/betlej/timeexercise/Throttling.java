@@ -1,48 +1,14 @@
 package pl.betlej.timeexercise;
 
-import java.time.Clock;
-import java.util.Queue;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
-public abstract class Throttling
+public interface Throttling
 {
-    private final Queue<Long> tasksReceived;
-    static int TASK_ACTIVE_MILLISECONDS = 1000;
-    static int THROTTLING_REQUESTS_PER_UNIT = 10;
-    private final Clock clock;
+    int TASK_ACTIVE_MILLISECONDS = 1000;
+    int MAX_REQUESTS_PER_UNIT = 10;
 
-
-    Throttling(Queue<Long> es)
-    {
-        tasksReceived = es;
-        clock = Clock.systemUTC();
-    }
-
-    public abstract boolean accept();
-
-    private Queue<Long> getTasksReceived()
-    {
-        return tasksReceived;
-    }
-
-    protected boolean serverOverloaded()
-    {
-        return getTasksReceived().size() >= THROTTLING_REQUESTS_PER_UNIT;
-    }
-
-    protected void cleanTheQueue()
-    {
-        getTasksReceived().removeIf(taskInactive());
-    }
-
-    private Predicate<Long> taskInactive()
-    {
-        return (taskAccepted) -> clock.millis() - taskAccepted > TASK_ACTIVE_MILLISECONDS;
-    }
-
-    protected static void throttlingSampleUsage(final Throttling throttling)
+    static void throttlingSampleUsage(final Throttling throttling)
     {
         long start = System.currentTimeMillis();
         long numberOfRequestsAccepted = IntStream.range(0, 10_000)
@@ -54,7 +20,7 @@ public abstract class Throttling
         System.out.println("time in millis: " + (System.currentTimeMillis() - start));
     }
 
-    private static void slowDown()
+    static void slowDown()
     {
         try
         {
@@ -65,8 +31,5 @@ public abstract class Throttling
         }
     }
 
-    protected boolean registerTask()
-    {
-        return getTasksReceived().offer(clock.millis());
-    }
+    boolean accept();
 }

@@ -60,7 +60,7 @@ public class Wait<T>
         return conditionMet;
     }
 
-    public boolean objectMeetsCondition(Predicate<T> condition)
+    private boolean objectMeetsCondition(Predicate<T> condition)
     {
         return condition.test(objectWaitedFor);
     }
@@ -68,7 +68,7 @@ public class Wait<T>
     private boolean notTimedOut()
     {
         int duration = clock.instant().getNano() - start.getNano();
-        return maxNano > duration || maxNano==NO_TIMEOUT;
+        return maxNano > duration || maxNano == NO_TIMEOUT;
     }
 
     public Wait atMost(TimeUnit unit, int count)

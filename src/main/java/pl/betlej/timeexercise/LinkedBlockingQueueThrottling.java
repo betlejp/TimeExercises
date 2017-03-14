@@ -2,19 +2,19 @@ package pl.betlej.timeexercise;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class LinkedBlockingQueueThrottling extends Throttling
+public class LinkedBlockingQueueThrottling extends QueueBasedThrottling
 {
 
     public LinkedBlockingQueueThrottling()
     {
-        super(new LinkedBlockingQueue<>(THROTTLING_REQUESTS_PER_UNIT));
+        super(new LinkedBlockingQueue<>(MAX_REQUESTS_PER_UNIT));
     }
 
-      @Override
+    @Override
     public boolean accept()
     {
         cleanTheQueue();
-        return registerTask();
+        return offerTaskToQueue();
     }
 
     public static void main(String[] args)

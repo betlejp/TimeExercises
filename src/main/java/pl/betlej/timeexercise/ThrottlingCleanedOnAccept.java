@@ -2,7 +2,7 @@ package pl.betlej.timeexercise;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class ThrottlingCleanedOnAccept extends Throttling
+public class ThrottlingCleanedOnAccept extends QueueBasedThrottling
 {
 
     public ThrottlingCleanedOnAccept()
@@ -21,7 +21,7 @@ public class ThrottlingCleanedOnAccept extends Throttling
                 return false;
             }
         }
-        return  registerTask();
+        return offerTaskToQueue();
     }
 
     public static void main(String[] args)
