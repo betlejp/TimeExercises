@@ -15,7 +15,8 @@ public interface Throttling
                 .parallel()
                 .peek((x) -> slowDown())
                 .mapToObj(x -> throttling.accept())
-                .filter(x -> x).count();
+                .filter(accepted -> accepted)
+                .count();
         System.out.println("numberOfRequestsAccepted: " + numberOfRequestsAccepted);
         System.out.println("time in millis: " + (System.currentTimeMillis() - start));
     }
